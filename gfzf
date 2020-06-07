@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+if [[ -n "$GFZF_TERM" ]]; then
+  termcmd="$GFZF_TERM"
+else
+  if command -v alacritty >&-; then
+    termcmd=alacritty
+  elif command -v kitty >&-; then
+    termcmd=kitty
+  else
+    echo No suitable terminal found. Please export GFZF_TERM >&2
+    exit 1
+  fi
+fi
+
+tmpin=$(mktemp /tmp/gfzf.XXXX)
+tmpout=$(mktemp /tmp/gfzf.XXXX)
+cat - > "$tmpin"
+
+$termcmd --class "gfzf" -e "bash" "-c" "fzf -m < $tmpin > $tmpout" && cat "$tmpout"
+
+rm "$tmpin"
+rm "$tmpout"
